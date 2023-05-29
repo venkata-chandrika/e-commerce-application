@@ -30,8 +30,10 @@ class LoginForm extends Component {
     const data = await response.json()
 
     console.log(data)
-    const {history} = this.props
-    history.replace('/')
+    if (response.ok === true) {
+      const {history} = this.props
+      history.push('/')
+    }
   }
 
   onChangeUsername = event => {
