@@ -1,24 +1,19 @@
 import {Component} from 'react'
 
+import Cookies from 'js-cookie'
+
 import './index.css'
 
 class LoginForm extends Component {
   state = {
     username: '',
     password: '',
+    isSubmitFailure: false,
+    errMsg: '',
   }
 
   onSubmitForm = async event => {
     event.preventDefault()
-    // const {username, password} = this.state
-    // const url = 'https://apis.ccbp.in/login'
-    // const userDetails = {username, password}
-    // const options = {
-    //   method: 'POST',
-    //   body: JSON.stringify(userDetails),
-    // }
-    // const response = await fetch(url, options)
-    // const data = await response.json()
     const {username, password} = this.state
     const userDetails = {username, password}
     const url = 'https://apis.ccbp.in/login'
@@ -29,10 +24,17 @@ class LoginForm extends Component {
     const response = await fetch(url, options)
     const data = await response.json()
 
-    console.log(data)
+    // console.log(data)
     if (response.ok === true) {
       const {history} = this.props
-      history.push('/')
+      const jwtToken = data.jwt_token
+
+      Cookies.set('jwt_token', jwtToken, {expires: 10})
+
+      history.replace('/')
+    } else {
+      console.log(data.error_msg)
+      this.setState({isSubmitFailure: true, errMsg: data.error_msg})
     }
   }
 
@@ -81,6 +83,7 @@ class LoginForm extends Component {
   }
 
   render() {
+    const {errMsg, isSubmitFailure} = this.state
     return (
       <div className="login-form-container">
         <img
@@ -104,6 +107,7 @@ class LoginForm extends Component {
           <button type="submit" className="login-button">
             Login
           </button>
+          {isSubmitFailure && <p className="err-msg">*{errMsg}</p>}
         </form>
       </div>
     )
